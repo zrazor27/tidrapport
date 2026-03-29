@@ -3,14 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tidrapport Elite v11.4</title>
-    
-    <!-- PWA Inställningar -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
+    <title>Tidrapport Elite v14.2</title>
     <style>
         :root { 
             --primary: #00d2ff; --secondary: #3a7bd5;
@@ -20,85 +13,53 @@
             --border: rgba(255, 255, 255, 0.1);
         }
         
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            margin: 0; padding: 15px; 
+            font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; 
             background: radial-gradient(circle at top right, #1e293b, #0f172a); 
             color: var(--text); min-height: 100vh;
         }
 
-        .container { max-width: 500px; margin: auto; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        h1 { 
-            text-align: center; font-size: 1.6rem; font-weight: 800; letter-spacing: 1px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin: 10px 0 20px 0;
-        }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        h1 { text-align: center; font-size: 1.6rem; font-weight: 800; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; }
         
-        .card { 
-            background: var(--card); padding: 20px; border-radius: 24px; 
-            backdrop-filter: blur(12px); border: 1px solid var(--border);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
-        }
-
-        label { font-weight: 700; display: block; margin-top: 15px; font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; }
-
-        input, textarea, select { 
-            display: block; margin-top: 6px; width: 100%; padding: 14px; 
-            border: 1px solid var(--border); border-radius: 14px; font-size: 16px; 
-            background: var(--input-bg); color: white; transition: all 0.2s;
-            text-align: center;
-        }
-
-        input:focus { border-color: var(--primary); background: rgba(51, 65, 85, 0.6); }
-
-        #holiday-msg { font-size: 0.7rem; font-weight: 800; margin-top: 6px; text-align: center; display: none; }
-        .is-holiday { color: var(--danger); }
-        .is-afton { color: var(--warning); }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .time-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-
-        .btn-group { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .card { background: var(--card); padding: 20px; border-radius: 24px; backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.3); margin-bottom: 20px; }
+        label { font-weight: 700; display: block; margin-top: 12px; font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; }
         
-        button { 
-            padding: 16px; cursor: pointer; border: none; border-radius: 16px; 
-            font-weight: 800; font-size: 0.9rem; transition: 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .input-with-action { position: relative; display: flex; align-items: center; }
+        .clear-btn { position: absolute; right: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: var(--danger); cursor: pointer; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; grid-column: span 2; box-shadow: 0 8px 20px rgba(0,210,255,0.2); }
-        .btn-main:disabled { opacity: 0.3; transform: scale(0.98); }
+        input, textarea, select { display: block; margin-top: 4px; width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; background: var(--input-bg); color: white; text-align: center; transition: 0.3s; }
         
-        .btn-secondary { background: rgba(248, 250, 252, 0.05); color: #cbd5e1; border: 1px solid var(--border); }
+        .val-error { border-color: var(--danger) !important; background: rgba(255, 94, 98, 0.05); }
+        .val-success { border-color: var(--success) !important; background: rgba(16, 185, 129, 0.05); }
+
+        #holiday-msg { font-size: 0.7rem; font-weight: 800; text-align: center; margin-top: 5px; min-height: 1.2em; }
+        .text-orange { color: var(--warning) !important; }
+        .text-red { color: var(--danger) !important; }
+
+        .btn-group { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 14px; cursor: pointer; border: none; border-radius: 14px; font-weight: 800; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; grid-column: span 2; }
+        button:disabled { opacity: 0.15; filter: grayscale(1); cursor: not-allowed; }
+        .btn-success { background: var(--success); color: white; grid-column: span 2; }
         .btn-danger { background: rgba(255, 94, 98, 0.1); color: var(--danger); border: 1px solid rgba(255, 94, 98, 0.2); }
-        .btn-success { background: var(--success); color: white; grid-column: span 2; margin-top: 5px; }
 
-        .total-display { 
-            margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.2); 
-            border-radius: 16px; border: 1px solid var(--primary);
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .total-display span:last-child { font-size: 1.4rem; font-weight: 900; color: var(--primary); }
-
-        /* Sparade rader */
-        .row-card { 
-            background: var(--card); margin-top: 12px; padding: 18px; border-radius: 20px; 
-            display: flex; justify-content: space-between; align-items: center; 
-            border: 1px solid var(--border); border-left: 6px solid transparent;
-            animation: fadeIn 0.4s ease;
-        }
-        .row-info { text-align: left; flex: 1; }
-        .row-meta { font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-bottom: 4px; }
-        .row-ao { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
-        .row-desc { font-size: 0.85rem; color: #cbd5e1; margin: 4px 0; }
+        .row-card { background: var(--card); margin-top: 12px; padding: 15px; border-radius: 18px; border: 1px solid var(--border); border-left: 6px solid var(--primary); }
+        .row-card.is-orange { border-left-color: var(--warning); }
+        .row-card.is-red { border-left-color: var(--danger); }
         
-        .action-btns { display: flex; gap: 10px; margin-left: 10px; }
-        .circle-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+        .row-top { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.85rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; }
+        .row-info { font-size: 0.75rem; line-height: 1.5; color: #cbd5e1; }
+        
+        .action-btns { display: flex; gap: 8px; margin-top: 10px; }
+        .circle-btn { width: 34px; height: 34px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-del { color: var(--danger); background: rgba(255,94,98,0.15); }
+        .btn-edit { color: var(--primary); background: rgba(0,210,255,0.15); }
+
+        .summary-card { background: linear-gradient(135deg, #10b981, #059669); padding: 15px; border-radius: 20px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.2); }
+        table { width: 100%; border-collapse: collapse; color: white; font-size: 0.75rem; }
+        .sum-total { font-weight: 900; border-top: 2px solid #fff; }
     </style>
 </head>
 <body onload="init()">
@@ -108,206 +69,210 @@
     
     <div class="card">
         <form id="form">
-            <label>Utförare *</label>
-            <input type="text" id="namn" placeholder="Namn" oninput="validate()">
+            <label>Utförare (För- & Efternamn) *</label>
+            <div class="input-with-action">
+                <input type="text" id="namn" placeholder="Förnamn Efternamn" oninput="validate()">
+                <button type="button" class="clear-btn" onclick="clearInp('namn')">✕</button>
+            </div>
             
-            <div class="grid-2">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                 <div>
                     <label>Datum *</label>
                     <input type="date" id="datum" oninput="validate()">
                     <div id="holiday-msg"></div>
                 </div>
-                <div><label>AO / Projekt *</label><input type="text" id="ao" placeholder="AO-nummer" oninput="validate()"></div>
+                <div><label>AO / Projekt *</label><input type="text" id="ao" placeholder="AO-nr" oninput="validate()"></div>
             </div>
 
             <label>Arbetsbeskrivning *</label>
-            <textarea id="beskrivning" rows="2" placeholder="Vad har gjorts?" oninput="validate()"></textarea>
+            <textarea id="beskrivning" rows="2" placeholder="Vad har utförts?" oninput="validate()"></textarea>
 
-            <div class="time-row">
+            <label>Förbrukning (Max 20 rader)</label>
+            <textarea id="material" rows="3" placeholder="En artikel per rad..." oninput="validate()"></textarea>
+
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1.2fr; gap:10px;">
                 <div><label>Start</label><input type="time" id="start" value="07:00" oninput="validate()"></div>
+                <div><label>Slut</label><input type="time" id="slut" value="16:00" oninput="validate()"></div>
                 <div><label>Lunch (h)</label>
                     <select id="lunch" oninput="validate()">
-                        <option value="0">0</option><option value="0.5">0.5</option><option value="1" selected>1.0</option>
+                        <option value="0">0</option>
+                        <option value="0.5">0.5</option>
+                        <option value="1" selected>1.0</option>
                     </select>
                 </div>
-                <div><label>Slut</label><input type="time" id="slut" value="16:00" oninput="validate()"></div>
             </div>
 
-            <div class="total-display">
-                <span>Arbetad tid:</span>
-                <span id="tidDisp">0.00 h</span>
-            </div>
+            <div id="tidDisp" style="text-align:center; margin: 15px 0; font-weight:900; color:var(--primary); font-size:1.2rem; border: 1px solid var(--border); padding: 10px; border-radius: 12px;">8.00 h</div>
 
             <div class="btn-group">
-                <button type="button" class="btn-main" id="saveBtn" onclick="sparaRad()" disabled>SPARA RAD</button>
-                <button type="button" class="btn-secondary" onclick="clearForm()">RENSA FÄLT</button>
-                <button type="button" class="btn-danger" onclick="raderaAllt()">NOLLSTÄLL ALLT</button>
-                <button type="button" class="btn-success" onclick="exportCSV()">SKICKA CSV (EXCEL)</button>
+                <button type="button" class="btn-main" id="saveBtn" onclick="sparaRad()">SPARA RAD</button>
+                <button type="button" class="btn-success" id="exportBtn" onclick="handleCSVExport()">EXPORTERA CSV 🔒</button>
+                <button type="button" class="btn-danger" id="clearBtn" onclick="authAction('clear')">RENSA ALLT 🔒</button>
             </div>
         </form>
     </div>
 
-    <div id="lista" style="margin-top: 20px; padding-bottom: 40px;"></div>
+    <div id="lista-container"></div>
+    <div id="summary-container"></div>
 </div>
 
 <script>
-    let rapporter = [];
-    let editIndex = -1;
+const CODES = { export: "1234", clear: "0000" };
 
-    // Helgdagskoll (Fasta datum)
-    const getHoliday = (dateStr) => {
-        if(!dateStr) return null;
-        const d = new Date(dateStr);
-        const md = `${d.getMonth() + 1}-${d.getDate()}`;
-        const h = { '1-1': 'Nyårsdagen', '1-6': 'Trettondedag jul', '5-1': 'Första maj', '6-6': 'Nationaldagen', '12-25': 'Juldagen', '12-26': 'Annandag jul' };
-        const a = { '12-24': 'Julafton', '12-31': 'Nyårsafton', '6-23': 'Midsommarafton' };
-        if(h[md]) return { name: h[md], type: 'holiday' };
-        if(a[md]) return { name: a[md], type: 'afton' };
-        return null;
+function init() {
+    const idag = new Date().toISOString().split('T');
+    document.getElementById('datum').value = idag[0];
+    const user = localStorage.getItem("utforare");
+    if(user) document.getElementById("namn").value = user;
+    renderList();
+    validate();
+}
+
+function clearInp(id) { document.getElementById(id).value = ""; validate(); }
+
+function validate() {
+    const n = document.getElementById("namn"), a = document.getElementById("ao"), d = document.getElementById("beskrivning"), m = document.getElementById("material");
+    const nameWords = n.value.trim().split(/\s+/).filter(w => w.length >= 2);
+    const nameOk = nameWords.length >= 2, aoOk = a.value.trim().length >= 1, descOk = d.value.trim().length >= 3;
+    const matOk = m.value.split('\n').filter(l => l.trim().length > 0).length <= 20;
+
+    n.className = nameOk ? "val-success" : (n.value.length > 0 ? "val-error" : "");
+    a.className = aoOk ? "val-success" : (a.value.length > 0 ? "val-error" : "");
+    d.className = descOk ? "val-success" : (d.value.length > 0 ? "val-error" : "");
+    m.className = matOk ? (m.value.length > 0 ? "val-success" : "") : "val-error";
+
+    const date = new Date(document.getElementById("datum").value);
+    const msg = document.getElementById("holiday-msg"), day = date.getDay(); 
+    msg.className = ""; msg.innerText = "";
+    let cTag = "";
+    if(day === 6) { msg.innerText = "LÖRDAG"; msg.className = "text-orange"; cTag = "orange"; }
+    else if(day === 0) { msg.innerText = "SÖNDAG / RÖD DAG"; msg.className = "text-red"; cTag = "red"; }
+
+    const [sh, sm] = document.getElementById("start").value.split(':').map(Number);
+    const [eh, em] = document.getElementById("slut").value.split(':').map(Number);
+    const lunch = parseFloat(document.getElementById("lunch").value);
+    const totalMins = (eh * 60 + em) - (sh * 60 + sm);
+    const hrs = Math.max(0, (totalMins / 60) - lunch);
+    document.getElementById("tidDisp").innerText = hrs.toFixed(2) + " h";
+
+    const hasData = JSON.parse(localStorage.getItem("tidrader") || "[]").length > 0;
+    document.getElementById("saveBtn").disabled = (!nameOk || !aoOk || !descOk || !matOk || hrs <= 0);
+    document.getElementById("exportBtn").disabled = (!nameOk || !hasData);
+    
+    return { hrs, cTag };
+}
+
+function sparaRad() {
+    const v = validate();
+    const rad = {
+        namn: document.getElementById("namn").value.trim(),
+        datum: document.getElementById("datum").value,
+        ao: document.getElementById("ao").value.trim(),
+        beskrivning: document.getElementById("beskrivning").value.trim(),
+        material: document.getElementById("material").value.trim(),
+        tid: v.hrs, color: v.cTag, start: document.getElementById("start").value, slut: document.getElementById("slut").value, lunch: document.getElementById("lunch").value
     };
+    localStorage.setItem("utforare", rad.namn);
+    let rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
+    rader.push(rad);
+    localStorage.setItem("tidrader", JSON.stringify(rader));
+    ["ao", "beskrivning", "material"].forEach(id => document.getElementById(id).value = "");
+    renderList(); validate();
+}
 
-    function init() {
-        const saved = localStorage.getItem('rapporter_v11_4');
-        if (saved) rapporter = JSON.parse(saved);
-        document.getElementById('namn').value = localStorage.getItem('user_name') || '';
-        document.getElementById('datum').valueAsDate = new Date();
-        renderaLista();
-        validate();
+function renderList() {
+    const rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
+    let html = "";
+    rader.forEach((r, i) => {
+        const cls = r.color === 'orange' ? 'is-orange' : (r.color === 'red' ? 'is-red' : '');
+        html += `<div class="row-card ${cls}"><div class="row-top"><span>AO: ${r.ao}</span><span style="color:var(--primary)">${r.tid.toFixed(2)} h</span></div><div class="row-info"><strong>Utförare:</strong> ${r.namn}<br><strong>Datum:</strong> ${r.datum}<br><strong>Tid:</strong> ${r.start}-${r.slut}<br><strong>Jobb:</strong> ${r.beskrivning}</div><div class="action-btns"><button class="circle-btn btn-edit" onclick="editR(${i})">✎</button><button class="circle-btn btn-del" onclick="delR(${i})">✕</button></div></div>`;
+    });
+    document.getElementById("lista-container").innerHTML = html;
+    const group = rader.reduce((acc, r) => { acc[r.ao] = (acc[r.ao] || 0) + r.tid; return acc; }, {});
+    let sHtml = "";
+    if(rader.length > 0) {
+        sHtml = `<div class="summary-card"><table><thead><tr><th>AO</th><th style="text-align:right;">TIMMAR</th></tr></thead><tbody>`;
+        let tot = 0;
+        for (const [ao, t] of Object.entries(group)) { tot += t; sHtml += `<tr><td>${ao}</td><td style="text-align:right;">${t.toFixed(2)} h</td></tr>`; }
+        sHtml += `<tr class="sum-total"><td>TOTALT</td><td style="text-align:right;">${tot.toFixed(2)} h</td></tr></tbody></table></div>`;
     }
+    document.getElementById("summary-container").innerHTML = sHtml;
+}
 
-    function validate() {
-        const start = document.getElementById('start').value;
-        const slut = document.getElementById('slut').value;
-        const lunch = parseFloat(document.getElementById('lunch').value);
-        const datum = document.getElementById('datum').value;
-        const msg = document.getElementById('holiday-msg');
-        
-        // Helgdagar
-        const h = getHoliday(datum);
-        if(h) {
-            msg.innerText = `⚠️ ${h.name.toUpperCase()}`;
-            msg.style.display = 'block';
-            msg.className = h.type === 'holiday' ? 'is-holiday' : 'is-afton';
-        } else { msg.style.display = 'none'; }
+function handleCSVExport() {
+    const p = prompt("Ange PIN för CSV-export:");
+    if(p !== CODES.export) return alert("Fel kod!");
+    
+    const rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
+    const namn = document.getElementById("namn").value;
 
-        // Tidberäkning
-        let diff = 0;
-        if (start && slut) {
-            const [h1, m1] = start.split(':').map(Number);
-            const [h2, m2] = slut.split(':').map(Number);
-            diff = (h2 + m2/60) - (h1 + m1/60) - lunch;
+    let csvContent = "\ufeff"; 
+    csvContent += "AO;Utförare;Datum;Arbetsbeskrivning;Material;Start;Slut;Lunch;Timmar\n";
+
+    rader.forEach(r => {
+        const row = [
+            r.ao,
+            r.namn,
+            r.datum,
+            r.beskrivning.replace(/;/g, ","), 
+            r.material.replace(/\n/g, " ").replace(/;/g, ","),
+            r.start,
+            r.slut,
+            r.lunch,
+            r.tid.toFixed(2).replace(".", ",") 
+        ];
+        csvContent += row.join(";") + "\n";
+    });
+
+    const totalt = rader.reduce((sum, r) => sum + r.tid, 0);
+    csvContent += `\n;;;;;;;TOTALT;${totalt.toFixed(2).replace(".", ",")}\n`;
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const dateStr = new Date().toISOString().slice(0,10);
+    const fileName = `Tidrapport_${namn.replace(/\s+/g, '_')}_${dateStr}.csv`;
+    
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => {
+        if(confirm("CSV-fil sparad! Vill du rensa listan nu?")) {
+            localStorage.removeItem("tidrader");
+            renderList(); validate();
         }
-        
-        const res = diff > 0 ? diff.toFixed(2) : "0.00";
-        document.getElementById('tidDisp').innerText = res + " h";
-        
-        const formOk = document.getElementById('namn').value && document.getElementById('ao').value && diff > 0;
-        document.getElementById('saveBtn').disabled = !formOk;
-        localStorage.setItem('user_name', document.getElementById('namn').value);
+    }, 1000);
+}
+
+function authAction(t) {
+    const p = prompt(`PIN för rensning:`);
+    if(p === CODES[t]) {
+        if(confirm("Rensa allt?")) { localStorage.removeItem("tidrader"); renderList(); validate(); }
+    } else alert("Fel kod!");
+}
+
+function delR(i) {
+    if(confirm("Ta bort raden?")) {
+        let r = JSON.parse(localStorage.getItem("tidrader") || "[]");
+        r.splice(i, 1);
+        localStorage.setItem("tidrader", JSON.stringify(r));
+        renderList(); validate();
     }
+}
 
-    function sparaRad() {
-        const h = getHoliday(document.getElementById('datum').value);
-        const nyRad = {
-            namn: document.getElementById('namn').value,
-            datum: document.getElementById('datum').value,
-            ao: document.getElementById('ao').value,
-            besk: document.getElementById('beskrivning').value,
-            tid: document.getElementById('tidDisp').innerText,
-            holiday: h ? h.name : '',
-            type: h ? h.type : 'normal'
-        };
-
-        if (editIndex > -1) {
-            rapporter[editIndex] = nyRad;
-            editIndex = -1;
-            document.getElementById('saveBtn').innerText = "SPARA RAD";
-        } else {
-            rapporter.unshift(nyRad); // Lägg överst
-        }
-
-        saveToLocal();
-        clearForm();
-        renderaLista();
-    }
-
-    function renderaLista() {
-        const div = document.getElementById('lista');
-        div.innerHTML = '';
-        rapporter.forEach((r, i) => {
-            const borderCol = r.type === 'holiday' ? 'var(--danger)' : (r.type === 'afton' ? 'var(--warning)' : 'transparent');
-            div.innerHTML += `
-                <div class="row-card" style="border-left-color: ${borderCol}">
-                    <div class="row-info">
-                        <div class="row-meta">${r.namn} • ${r.datum} ${r.holiday ? ' • ' + r.holiday : ''}</div>
-                        <div class="row-ao">${r.ao}</div>
-                        <div class="row-desc">${r.besk}</div>
-                        <div style="font-weight:900; color:var(--primary); font-size: 0.9rem;">${r.tid} Arbetad tid</div>
-                    </div>
-                    <div class="action-btns">
-                        <button class="circle-btn edit-bg" onclick="editRad(${i})">✎</button>
-                        <button class="circle-btn delete-bg" onclick="raderaRad(${i})">✕</button>
-                    </div>
-                </div>`;
-        });
-    }
-
-    function editRad(i) {
-        const r = rapporter[i];
-        document.getElementById('datum').value = r.datum;
-        document.getElementById('ao').value = r.ao;
-        document.getElementById('beskrivning').value = r.besk;
-        editIndex = i;
-        document.getElementById('saveBtn').innerText = "UPPDATERA RAD";
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        validate();
-    }
-
-    function raderaRad(i) {
-        if(confirm("Ta bort denna rad?")) {
-            rapporter.splice(i, 1);
-            saveToLocal();
-            renderaLista();
-        }
-    }
-
-    function raderaAllt() {
-        if (confirm("VARNING! Detta raderar alla inskrivna data och kan inte återställas. Vill du fortsätta?")) {
-            const kod = prompt("Ange säkerhetskod för att nollställa (1234):");
-            if (kod === "1234") {
-                rapporter = [];
-                saveToLocal();
-                renderaLista();
-                alert("All data raderad.");
-            } else if (kod !== null) {
-                alert("Fel kod.");
-            }
-        }
-    }
-
-    function clearForm() {
-        document.getElementById('ao').value = '';
-        document.getElementById('beskrivning').value = '';
-        validate();
-    }
-
-    function saveToLocal() {
-        localStorage.setItem('rapporter_v11_4', JSON.stringify(rapporter));
-    }
-
-    function exportCSV() {
-        if (rapporter.length === 0) return alert("Ingen data att skicka.");
-        let csv = "\uFEFFUtförare,Datum,AO,Beskrivning,Arbetad tid,Helgdag\n";
-        rapporter.forEach(r => {
-            csv += `${r.namn},${r.datum},${r.ao},"${r.besk.replace(/"/g, '""')}",${r.tid},${r.holiday}\n`;
-        });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Tidrapport_${new Date().toISOString().split('T')[0]}.csv`;
-        link.click();
-    }
+function editR(i) {
+    let rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
+    const r = rader[i];
+    ["datum", "ao", "beskrivning", "material", "start", "slut", "lunch"].forEach(id => {
+        if(document.getElementById(id)) document.getElementById(id).value = r[id];
+    });
+    rader.splice(i, 1);
+    localStorage.setItem("tidrader", JSON.stringify(rader));
+    renderList(); validate();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 </script>
-
 </body>
 </html>
