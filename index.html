@@ -4,68 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tidrapport Elite v11.4</title>
+    
+    <!-- PWA Inställningar -->
     <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
     <style>
         :root { 
             --primary: #00d2ff; --secondary: #3a7bd5;
-            --danger: #ff5e62; --card: rgba(30, 41, 59, 0.8); 
-            --text: #f8fafc; --input-bg: rgba(51, 65, 85, 0.5);
+            --danger: #ff5e62; --warning: #fb8500; --success: #10b981;
+            --bg: #0f172a; --card: rgba(30, 41, 59, 0.7); 
+            --text: #f8fafc; --input-bg: rgba(51, 65, 85, 0.4);
             --border: rgba(255, 255, 255, 0.1);
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
         body { 
-            font-family: system-ui, -apple-system, sans-serif; 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
             margin: 0; padding: 15px; 
             background: radial-gradient(circle at top right, #1e293b, #0f172a); 
             color: var(--text); min-height: 100vh;
         }
-        .container { max-width: 500px; margin: auto; }
-        .card { background: var(--card); padding: 20px; border-radius: 24px; backdrop-filter: blur(10px); border: 1px solid var(--border); margin-bottom: 20px; }
-        h1 { font-size: 1.5rem; text-align: center; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .container { max-width: 500px; margin: auto; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h1 { 
+            text-align: center; font-size: 1.6rem; font-weight: 800; letter-spacing: 1px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 10px 0 20px 0;
+        }
         
-        label { font-weight: 700; display: block; margin-top: 12px; font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; }
-        input, textarea, select { display: block; margin-top: 5px; width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; background: var(--input-bg); color: white; text-align: center; }
+        .card { 
+            background: var(--card); padding: 20px; border-radius: 24px; 
+            backdrop-filter: blur(12px); border: 1px solid var(--border);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+        }
+
+        label { font-weight: 700; display: block; margin-top: 15px; font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; }
+
+        input, textarea, select { 
+            display: block; margin-top: 6px; width: 100%; padding: 14px; 
+            border: 1px solid var(--border); border-radius: 14px; font-size: 16px; 
+            background: var(--input-bg); color: white; transition: all 0.2s;
+            text-align: center;
+        }
+
+        input:focus { border-color: var(--primary); background: rgba(51, 65, 85, 0.6); }
+
+        #holiday-msg { font-size: 0.7rem; font-weight: 800; margin-top: 6px; text-align: center; display: none; }
+        .is-holiday { color: var(--danger); }
+        .is-afton { color: var(--warning); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .time-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        .btn-group { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .time-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        button { 
+            padding: 16px; cursor: pointer; border: none; border-radius: 16px; 
+            font-weight: 800; font-size: 0.9rem; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; grid-column: span 2; box-shadow: 0 8px 20px rgba(0,210,255,0.2); }
+        .btn-main:disabled { opacity: 0.3; transform: scale(0.98); }
         
-        .btn-group { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 15px; cursor: pointer; border: none; border-radius: 14px; font-weight: 800; transition: 0.2s; }
-        .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; grid-column: span 2; }
-        .btn-main:disabled { opacity: 0.3; }
-        .btn-secondary { background: rgba(255,255,255,0.1); color: white; }
-        .btn-csv { background: #10b981; color: white; grid-column: span 2; margin-top: 10px; }
+        .btn-secondary { background: rgba(248, 250, 252, 0.05); color: #cbd5e1; border: 1px solid var(--border); }
+        .btn-danger { background: rgba(255, 94, 98, 0.1); color: var(--danger); border: 1px solid rgba(255, 94, 98, 0.2); }
+        .btn-success { background: var(--success); color: white; grid-column: span 2; margin-top: 5px; }
+
+        .total-display { 
+            margin: 20px 0; padding: 15px; background: rgba(0,0,0,0.2); 
+            border-radius: 16px; border: 1px solid var(--primary);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .total-display span:last-child { font-size: 1.4rem; font-weight: 900; color: var(--primary); }
 
         /* Sparade rader */
-        .row-card { background: var(--card); margin-top: 10px; padding: 15px; border-radius: 18px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        .row-info { text-align: left; }
-        .row-ao { font-weight: 800; color: var(--primary); }
-        .row-desc { font-size: 0.85rem; color: #94a3b8; }
-        .action-btns { display: flex; gap: 8px; }
-        .circle-btn { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-        .edit-bg { background: rgba(0, 210, 255, 0.1); color: var(--primary); }
-        .delete-bg { background: rgba(255, 94, 98, 0.1); color: var(--danger); }
+        .row-card { 
+            background: var(--card); margin-top: 12px; padding: 18px; border-radius: 20px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border: 1px solid var(--border); border-left: 6px solid transparent;
+            animation: fadeIn 0.4s ease;
+        }
+        .row-info { text-align: left; flex: 1; }
+        .row-meta { font-size: 0.7rem; color: #94a3b8; font-weight: 600; margin-bottom: 4px; }
+        .row-ao { font-weight: 800; color: var(--primary); font-size: 1.1rem; }
+        .row-desc { font-size: 0.85rem; color: #cbd5e1; margin: 4px 0; }
         
-        .total-box { margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 15px; display: flex; justify-content: space-between; border: 1px solid var(--primary); font-weight: 800; }
+        .action-btns { display: flex; gap: 10px; margin-left: 10px; }
+        .circle-btn { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
     </style>
 </head>
 <body onload="init()">
 
 <div class="container">
-    <h1>TIDRAPPORT v11.4</h1>
+    <h1>TIDRAPPORT ELITE</h1>
     
     <div class="card">
         <form id="form">
-            <label>Utförare</label>
+            <label>Utförare *</label>
             <input type="text" id="namn" placeholder="Namn" oninput="validate()">
             
             <div class="grid-2">
-                <div><label>Datum</label><input type="date" id="datum" oninput="validate()"></div>
-                <div><label>AO / Projekt</label><input type="text" id="ao" placeholder="AO" oninput="validate()"></div>
+                <div>
+                    <label>Datum *</label>
+                    <input type="date" id="datum" oninput="validate()">
+                    <div id="holiday-msg"></div>
+                </div>
+                <div><label>AO / Projekt *</label><input type="text" id="ao" placeholder="AO-nummer" oninput="validate()"></div>
             </div>
 
-            <label>Arbetsbeskrivning</label>
-            <textarea id="beskrivning" rows="2" placeholder="Beskrivning..." oninput="validate()"></textarea>
+            <label>Arbetsbeskrivning *</label>
+            <textarea id="beskrivning" rows="2" placeholder="Vad har gjorts?" oninput="validate()"></textarea>
 
             <div class="time-row">
                 <div><label>Start</label><input type="time" id="start" value="07:00" oninput="validate()"></div>
@@ -77,27 +133,43 @@
                 <div><label>Slut</label><input type="time" id="slut" value="16:00" oninput="validate()"></div>
             </div>
 
-            <div class="total-box"><span>Beräknad tid:</span> <span id="tidDisp">0.00 h</span></div>
+            <div class="total-display">
+                <span>Arbetad tid:</span>
+                <span id="tidDisp">0.00 h</span>
+            </div>
 
             <div class="btn-group">
                 <button type="button" class="btn-main" id="saveBtn" onclick="sparaRad()" disabled>SPARA RAD</button>
-                <button type="button" class="btn-secondary" onclick="clearForm()">RENSA</button>
-                <button type="button" class="btn-csv" onclick="exportCSV()">SKICKA CSV (EXCEL)</button>
+                <button type="button" class="btn-secondary" onclick="clearForm()">RENSA FÄLT</button>
+                <button type="button" class="btn-danger" onclick="raderaAllt()">NOLLSTÄLL ALLT</button>
+                <button type="button" class="btn-success" onclick="exportCSV()">SKICKA CSV (EXCEL)</button>
             </div>
         </form>
     </div>
 
-    <div id="lista"></div>
+    <div id="lista" style="margin-top: 20px; padding-bottom: 40px;"></div>
 </div>
 
 <script>
     let rapporter = [];
     let editIndex = -1;
 
+    // Helgdagskoll (Fasta datum)
+    const getHoliday = (dateStr) => {
+        if(!dateStr) return null;
+        const d = new Date(dateStr);
+        const md = `${d.getMonth() + 1}-${d.getDate()}`;
+        const h = { '1-1': 'Nyårsdagen', '1-6': 'Trettondedag jul', '5-1': 'Första maj', '6-6': 'Nationaldagen', '12-25': 'Juldagen', '12-26': 'Annandag jul' };
+        const a = { '12-24': 'Julafton', '12-31': 'Nyårsafton', '6-23': 'Midsommarafton' };
+        if(h[md]) return { name: h[md], type: 'holiday' };
+        if(a[md]) return { name: a[md], type: 'afton' };
+        return null;
+    };
+
     function init() {
-        const sparadData = localStorage.getItem('rapporter_v11');
-        if (sparadData) rapporter = JSON.parse(sparadData);
-        document.getElementById('namn').value = localStorage.getItem('namn') || '';
+        const saved = localStorage.getItem('rapporter_v11_4');
+        if (saved) rapporter = JSON.parse(saved);
+        document.getElementById('namn').value = localStorage.getItem('user_name') || '';
         document.getElementById('datum').valueAsDate = new Date();
         renderaLista();
         validate();
@@ -107,29 +179,43 @@
         const start = document.getElementById('start').value;
         const slut = document.getElementById('slut').value;
         const lunch = parseFloat(document.getElementById('lunch').value);
+        const datum = document.getElementById('datum').value;
+        const msg = document.getElementById('holiday-msg');
         
-        let timmar = 0;
+        // Helgdagar
+        const h = getHoliday(datum);
+        if(h) {
+            msg.innerText = `⚠️ ${h.name.toUpperCase()}`;
+            msg.style.display = 'block';
+            msg.className = h.type === 'holiday' ? 'is-holiday' : 'is-afton';
+        } else { msg.style.display = 'none'; }
+
+        // Tidberäkning
+        let diff = 0;
         if (start && slut) {
-            const d1 = new Date("2000-01-01 " + start);
-            const d2 = new Date("2000-01-01 " + slut);
-            timmar = (d2 - d1) / 1000 / 60 / 60 - lunch;
+            const [h1, m1] = start.split(':').map(Number);
+            const [h2, m2] = slut.split(':').map(Number);
+            diff = (h2 + m2/60) - (h1 + m1/60) - lunch;
         }
         
-        const t = timmar > 0 ? timmar.toFixed(2) : "0.00";
-        document.getElementById('tidDisp').innerText = t + " h";
+        const res = diff > 0 ? diff.toFixed(2) : "0.00";
+        document.getElementById('tidDisp').innerText = res + " h";
         
-        const formOk = document.getElementById('namn').value && document.getElementById('ao').value && timmar > 0;
+        const formOk = document.getElementById('namn').value && document.getElementById('ao').value && diff > 0;
         document.getElementById('saveBtn').disabled = !formOk;
-        localStorage.setItem('namn', document.getElementById('namn').value);
-        return t;
+        localStorage.setItem('user_name', document.getElementById('namn').value);
     }
 
     function sparaRad() {
+        const h = getHoliday(document.getElementById('datum').value);
         const nyRad = {
+            namn: document.getElementById('namn').value,
             datum: document.getElementById('datum').value,
             ao: document.getElementById('ao').value,
             besk: document.getElementById('beskrivning').value,
-            tid: document.getElementById('tidDisp').innerText
+            tid: document.getElementById('tidDisp').innerText,
+            holiday: h ? h.name : '',
+            type: h ? h.type : 'normal'
         };
 
         if (editIndex > -1) {
@@ -137,10 +223,10 @@
             editIndex = -1;
             document.getElementById('saveBtn').innerText = "SPARA RAD";
         } else {
-            rapporter.push(nyRad);
+            rapporter.unshift(nyRad); // Lägg överst
         }
 
-        localStorage.setItem('rapporter_v11', JSON.stringify(rapporter));
+        saveToLocal();
         clearForm();
         renderaLista();
     }
@@ -149,12 +235,14 @@
         const div = document.getElementById('lista');
         div.innerHTML = '';
         rapporter.forEach((r, i) => {
+            const borderCol = r.type === 'holiday' ? 'var(--danger)' : (r.type === 'afton' ? 'var(--warning)' : 'transparent');
             div.innerHTML += `
-                <div class="row-card">
+                <div class="row-card" style="border-left-color: ${borderCol}">
                     <div class="row-info">
-                        <div class="row-ao">${r.ao} <span style="font-size:0.7rem; color:#94a3b8;">(${r.datum})</span></div>
+                        <div class="row-meta">${r.namn} • ${r.datum} ${r.holiday ? ' • ' + r.holiday : ''}</div>
+                        <div class="row-ao">${r.ao}</div>
                         <div class="row-desc">${r.besk}</div>
-                        <div style="font-weight:bold; color:var(--primary)">${r.tid}</div>
+                        <div style="font-weight:900; color:var(--primary); font-size: 0.9rem;">${r.tid} Arbetad tid</div>
                     </div>
                     <div class="action-btns">
                         <button class="circle-btn edit-bg" onclick="editRad(${i})">✎</button>
@@ -164,14 +252,6 @@
         });
     }
 
-    function raderaRad(i) {
-        if(confirm("Radera?")) {
-            rapporter.splice(i, 1);
-            localStorage.setItem('rapporter_v11', JSON.stringify(rapporter));
-            renderaLista();
-        }
-    }
-
     function editRad(i) {
         const r = rapporter[i];
         document.getElementById('datum').value = r.datum;
@@ -179,8 +259,30 @@
         document.getElementById('beskrivning').value = r.besk;
         editIndex = i;
         document.getElementById('saveBtn').innerText = "UPPDATERA RAD";
-        window.scrollTo(0,0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         validate();
+    }
+
+    function raderaRad(i) {
+        if(confirm("Ta bort denna rad?")) {
+            rapporter.splice(i, 1);
+            saveToLocal();
+            renderaLista();
+        }
+    }
+
+    function raderaAllt() {
+        if (confirm("VARNING! Detta raderar alla inskrivna data och kan inte återställas. Vill du fortsätta?")) {
+            const kod = prompt("Ange säkerhetskod för att nollställa (1234):");
+            if (kod === "1234") {
+                rapporter = [];
+                saveToLocal();
+                renderaLista();
+                alert("All data raderad.");
+            } else if (kod !== null) {
+                alert("Fel kod.");
+            }
+        }
     }
 
     function clearForm() {
@@ -189,18 +291,23 @@
         validate();
     }
 
+    function saveToLocal() {
+        localStorage.setItem('rapporter_v11_4', JSON.stringify(rapporter));
+    }
+
     function exportCSV() {
-        if (rapporter.length === 0) return alert("Ingen data att skicka!");
-        let csv = "Datum,AO,Beskrivning,Tid\n";
+        if (rapporter.length === 0) return alert("Ingen data att skicka.");
+        let csv = "\uFEFFUtförare,Datum,AO,Beskrivning,Arbetad tid,Helgdag\n";
         rapporter.forEach(r => {
-            csv += `${r.datum},${r.ao},"${r.besk}",${r.tid}\n`;
+            csv += `${r.namn},${r.datum},${r.ao},"${r.besk.replace(/"/g, '""')}",${r.tid},${r.holiday}\n`;
         });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "tidrapport.csv");
+        link.download = `Tidrapport_${new Date().toISOString().split('T')[0]}.csv`;
         link.click();
     }
 </script>
+
 </body>
 </html>
