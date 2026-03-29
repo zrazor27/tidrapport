@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tidrapport Elite v14.2</title>
+    <title>Tidrapport Elite v15.2</title>
     <style>
         :root { 
             --primary: #00d2ff; --secondary: #3a7bd5;
@@ -14,264 +14,214 @@
         }
         
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-            color: var(--text); min-height: 100vh;
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: radial-gradient(circle at top right, #1e293b, #0f172a); color: var(--text); margin: 0; padding: 10px; min-height: 100vh; }
 
-        .container { max-width: 500px; margin: auto; padding: 15px; }
-        h1 { text-align: center; font-size: 1.6rem; font-weight: 800; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 10px 0; }
+        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: inherit; z-index: 10000; display: flex; align-items: center; justify-content: center; }
         
-        .card { background: var(--card); padding: 20px; border-radius: 24px; backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.3); margin-bottom: 20px; }
-        label { font-weight: 700; display: block; margin-top: 12px; font-size: 0.65rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; }
+        .container { max-width: 500px; margin: auto; display: none; padding-bottom: 100px; }
+        .card { background: var(--card); padding: 25px; border-radius: 24px; backdrop-filter: blur(12px); border: 1px solid var(--border); box-shadow: 0 15px 35px rgba(0,0,0,0.3); margin-bottom: 15px; position: relative; }
         
-        .input-with-action { position: relative; display: flex; align-items: center; }
-        .clear-btn { position: absolute; right: 10px; background: rgba(255,255,255,0.1); border: none; border-radius: 8px; color: var(--danger); cursor: pointer; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
-
-        input, textarea, select { display: block; margin-top: 4px; width: 100%; padding: 12px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; background: var(--input-bg); color: white; text-align: center; transition: 0.3s; }
+        .settings-icon { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.4rem; opacity: 0.7; z-index: 10; }
         
-        .val-error { border-color: var(--danger) !important; background: rgba(255, 94, 98, 0.05); }
-        .val-success { border-color: var(--success) !important; background: rgba(16, 185, 129, 0.05); }
+        /* Modal för inställningar */
+        #settings-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 350px; background: #1e293b; border: 1px solid var(--primary); border-radius: 20px; padding: 20px; z-index: 20000; box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 15000; }
 
-        #holiday-msg { font-size: 0.7rem; font-weight: 800; text-align: center; margin-top: 5px; min-height: 1.2em; }
-        .text-orange { color: var(--warning) !important; }
-        .text-red { color: var(--danger) !important; }
-
-        .btn-group { margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 14px; cursor: pointer; border: none; border-radius: 14px; font-weight: 800; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
-        .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; grid-column: span 2; }
-        button:disabled { opacity: 0.15; filter: grayscale(1); cursor: not-allowed; }
-        .btn-success { background: var(--success); color: white; grid-column: span 2; }
-        .btn-danger { background: rgba(255, 94, 98, 0.1); color: var(--danger); border: 1px solid rgba(255, 94, 98, 0.2); }
-
-        .row-card { background: var(--card); margin-top: 12px; padding: 15px; border-radius: 18px; border: 1px solid var(--border); border-left: 6px solid var(--primary); }
-        .row-card.is-orange { border-left-color: var(--warning); }
-        .row-card.is-red { border-left-color: var(--danger); }
+        label { font-weight: 700; display: block; margin-top: 12px; font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+        input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: var(--input-bg); color: white; margin-top: 5px; font-size: 15px; }
         
-        .row-top { display: flex; justify-content: space-between; font-weight: 800; font-size: 0.85rem; border-bottom: 1px solid var(--border); padding-bottom: 6px; margin-bottom: 8px; }
-        .row-info { font-size: 0.75rem; line-height: 1.5; color: #cbd5e1; }
+        .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: 800; cursor: pointer; margin-top: 15px; }
+        .btn-opt { background: rgba(255,255,255,0.05); color: white; border: 1px solid var(--border); padding: 10px; width: 100%; border-radius: 10px; margin-top: 10px; cursor: pointer; font-weight: 600; }
         
-        .action-btns { display: flex; gap: 8px; margin-top: 10px; }
-        .circle-btn { width: 34px; height: 34px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .btn-del { color: var(--danger); background: rgba(255,94,98,0.15); }
-        .btn-edit { color: var(--primary); background: rgba(0,210,255,0.15); }
+        .row-card { background: var(--card); margin-top: 12px; padding: 16px; border-radius: 18px; border-left: 5px solid var(--primary); border: 1px solid var(--border); }
+        .row-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        .row-desc { font-size: 0.85rem; color: #94a3b8; margin-top: 8px; font-style: italic; border-top: 1px solid var(--border); padding-top: 8px; }
+        
+        .actions { display: flex; gap: 20px; margin-top: 12px; justify-content: flex-end; font-size: 0.8rem; font-weight: 600; }
+        .edit-btn { color: var(--primary); cursor: pointer; }
+        .delete-btn { color: var(--danger); cursor: pointer; }
 
-        .summary-card { background: linear-gradient(135deg, #10b981, #059669); padding: 15px; border-radius: 20px; margin-top: 20px; border: 1px solid rgba(255,255,255,0.2); }
-        table { width: 100%; border-collapse: collapse; color: white; font-size: 0.75rem; }
-        .sum-total { font-weight: 900; border-top: 2px solid #fff; }
+        #summary-box { background: linear-gradient(135deg, #10b981, #059669); padding: 15px; border-radius: 18px; text-align: center; font-weight: 800; margin: 20px 0; }
     </style>
 </head>
 <body onload="init()">
 
-<div class="container">
-    <h1>TIDRAPPORT ELITE</h1>
-    
+<!-- MODAL & OVERLAY -->
+<div class="modal-overlay" id="overlay" onclick="toggleSettings()"></div>
+<div id="settings-modal">
+    <h3 style="margin-top:0; text-align:center; color:var(--primary);">INSTÄLLNINGAR</h3>
+    <button class="btn-opt" onclick="changePin()">Byt PIN-kod</button>
+    <button class="btn-opt" onclick="secureExport()" style="border-color: var(--success); color: var(--success);">📥 Exportera CSV (Kodkrävs)</button>
+    <button class="btn-opt" onclick="location.reload()" style="border-color: var(--danger); color: var(--danger);">Logga ut</button>
+    <button class="btn-main" onclick="toggleSettings()">STÄNG</button>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+    <div class="card" style="width: 320px;">
+        <h2 style="text-align:center; margin-top: 0;">LOGGA IN</h2>
+        <label>Användare</label>
+        <input type="text" id="login-user" placeholder="För- och efternamn">
+        <label>Säkerhetskod</label>
+        <input type="password" id="login-pin" placeholder="••••" inputmode="numeric">
+        <button class="btn-main" onclick="attemptLogin()">LÅS UPP</button>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="container" id="app-content">
     <div class="card">
-        <form id="form">
-            <label>Utförare (För- & Efternamn) *</label>
-            <div class="input-with-action">
-                <input type="text" id="namn" placeholder="Förnamn Efternamn" oninput="validate()">
-                <button type="button" class="clear-btn" onclick="clearInp('namn')">✕</button>
+        <span class="settings-icon" onclick="toggleSettings()">⚙️</span>
+        <h1 style="text-align:center; font-size: 1.4rem; margin:0 0 10px 0;">TIDRAPPORT ELITE</h1>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div><label>Datum</label><input type="date" id="datum"></div>
+            <div><label>AO-Nummer</label><input type="text" id="ao" placeholder="AO"></div>
+        </div>
+        
+        <label>Arbetsbeskrivning</label>
+        <textarea id="beskrivning" rows="2" placeholder="Vad har utförts?"></textarea>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
+            <div><label>Start</label><input type="time" id="start" value="07:00"></div>
+            <div><label>Slut</label><input type="time" id="slut" value="16:00"></div>
+            <div><label>Lunch</label>
+                <select id="lunch">
+                    <option value="1">1.0 h</option>
+                    <option value="0.5">0.5 h</option>
+                    <option value="0">0 h</option>
+                </select>
             </div>
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div>
-                    <label>Datum *</label>
-                    <input type="date" id="datum" oninput="validate()">
-                    <div id="holiday-msg"></div>
-                </div>
-                <div><label>AO / Projekt *</label><input type="text" id="ao" placeholder="AO-nr" oninput="validate()"></div>
-            </div>
-
-            <label>Arbetsbeskrivning *</label>
-            <textarea id="beskrivning" rows="2" placeholder="Vad har utförts?" oninput="validate()"></textarea>
-
-            <label>Förbrukning (Max 20 rader)</label>
-            <textarea id="material" rows="3" placeholder="En artikel per rad..." oninput="validate()"></textarea>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr 1.2fr; gap:10px;">
-                <div><label>Start</label><input type="time" id="start" value="07:00" oninput="validate()"></div>
-                <div><label>Slut</label><input type="time" id="slut" value="16:00" oninput="validate()"></div>
-                <div><label>Lunch (h)</label>
-                    <select id="lunch" oninput="validate()">
-                        <option value="0">0</option>
-                        <option value="0.5">0.5</option>
-                        <option value="1" selected>1.0</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="tidDisp" style="text-align:center; margin: 15px 0; font-weight:900; color:var(--primary); font-size:1.2rem; border: 1px solid var(--border); padding: 10px; border-radius: 12px;">8.00 h</div>
-
-            <div class="btn-group">
-                <button type="button" class="btn-main" id="saveBtn" onclick="sparaRad()">SPARA RAD</button>
-                <button type="button" class="btn-success" id="exportBtn" onclick="handleCSVExport()">EXPORTERA CSV 🔒</button>
-                <button type="button" class="btn-danger" id="clearBtn" onclick="authAction('clear')">RENSA ALLT 🔒</button>
-            </div>
-        </form>
+        </div>
+        <button class="btn-main" onclick="sparaRad()">SPARA RAD</button>
     </div>
 
     <div id="lista-container"></div>
-    <div id="summary-container"></div>
+    <div id="summary-box">Total tid: 0.00 h</div>
 </div>
 
 <script>
-const CODES = { export: "1234", clear: "0000" };
-
 function init() {
-    const idag = new Date().toISOString().split('T');
-    document.getElementById('datum').value = idag[0];
-    const user = localStorage.getItem("utforare");
-    if(user) document.getElementById("namn").value = user;
-    renderList();
-    validate();
+    if(!localStorage.getItem("app_pin")) localStorage.setItem("app_pin", "1234");
+    const user = localStorage.getItem("utforare_namn");
+    if(user) document.getElementById("login-user").value = user;
+    document.getElementById("datum").valueAsDate = new Date();
 }
 
-function clearInp(id) { document.getElementById(id).value = ""; validate(); }
+function toggleSettings() {
+    const modal = document.getElementById("settings-modal");
+    const overlay = document.getElementById("overlay");
+    const isOpen = modal.style.display === "block";
+    modal.style.display = isOpen ? "none" : "block";
+    overlay.style.display = isOpen ? "none" : "block";
+}
 
-function validate() {
-    const n = document.getElementById("namn"), a = document.getElementById("ao"), d = document.getElementById("beskrivning"), m = document.getElementById("material");
-    const nameWords = n.value.trim().split(/\s+/).filter(w => w.length >= 2);
-    const nameOk = nameWords.length >= 2, aoOk = a.value.trim().length >= 1, descOk = d.value.trim().length >= 3;
-    const matOk = m.value.split('\n').filter(l => l.trim().length > 0).length <= 20;
+function attemptLogin() {
+    const user = document.getElementById("login-user").value.trim();
+    const pin = document.getElementById("login-pin").value;
+    if(user.split(' ').length >= 2 && pin === localStorage.getItem("app_pin")) {
+        localStorage.setItem("utforare_namn", user);
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("app-content").style.display = "block";
+        renderList();
+    } else alert("Fel uppgifter.");
+}
 
-    n.className = nameOk ? "val-success" : (n.value.length > 0 ? "val-error" : "");
-    a.className = aoOk ? "val-success" : (a.value.length > 0 ? "val-error" : "");
-    d.className = descOk ? "val-success" : (d.value.length > 0 ? "val-error" : "");
-    m.className = matOk ? (m.value.length > 0 ? "val-success" : "") : "val-error";
+function secureExport() {
+    const pin = prompt("Verifiera med PIN-kod för att exportera:");
+    if(pin === localStorage.getItem("app_pin")) {
+        handleCSVExport();
+        toggleSettings();
+    } else if(pin !== null) {
+        alert("Fel kod! Export avbruten.");
+    }
+}
 
-    const date = new Date(document.getElementById("datum").value);
-    const msg = document.getElementById("holiday-msg"), day = date.getDay(); 
-    msg.className = ""; msg.innerText = "";
-    let cTag = "";
-    if(day === 6) { msg.innerText = "LÖRDAG"; msg.className = "text-orange"; cTag = "orange"; }
-    else if(day === 0) { msg.innerText = "SÖNDAG / RÖD DAG"; msg.className = "text-red"; cTag = "red"; }
-
-    const [sh, sm] = document.getElementById("start").value.split(':').map(Number);
-    const [eh, em] = document.getElementById("slut").value.split(':').map(Number);
-    const lunch = parseFloat(document.getElementById("lunch").value);
-    const totalMins = (eh * 60 + em) - (sh * 60 + sm);
-    const hrs = Math.max(0, (totalMins / 60) - lunch);
-    document.getElementById("tidDisp").innerText = hrs.toFixed(2) + " h";
-
-    const hasData = JSON.parse(localStorage.getItem("tidrader") || "[]").length > 0;
-    document.getElementById("saveBtn").disabled = (!nameOk || !aoOk || !descOk || !matOk || hrs <= 0);
-    document.getElementById("exportBtn").disabled = (!nameOk || !hasData);
-    
-    return { hrs, cTag };
+function changePin() {
+    const old = prompt("Ange nuvarande kod:");
+    if(old === localStorage.getItem("app_pin")) {
+        const newPin = prompt("Ange ny 4-siffrig kod:");
+        if(newPin && newPin.length >= 4) {
+            localStorage.setItem("app_pin", newPin);
+            alert("Klart!");
+        }
+    } else alert("Fel kod.");
 }
 
 function sparaRad() {
-    const v = validate();
-    const rad = {
-        namn: document.getElementById("namn").value.trim(),
-        datum: document.getElementById("datum").value,
-        ao: document.getElementById("ao").value.trim(),
-        beskrivning: document.getElementById("beskrivning").value.trim(),
-        material: document.getElementById("material").value.trim(),
-        tid: v.hrs, color: v.cTag, start: document.getElementById("start").value, slut: document.getElementById("slut").value, lunch: document.getElementById("lunch").value
+    const s = document.getElementById("start").value.split(':');
+    const e = document.getElementById("slut").value.split(':');
+    const tid = (parseInt(e[0])*60 + parseInt(e[1]) - (parseInt(s[0])*60 + parseInt(s[1])))/60 - parseFloat(document.getElementById("lunch").value);
+    
+    if(tid <= 0) return alert("Kontrollera tiderna!");
+
+    const rad = { 
+        ao: document.getElementById("ao").value || "Övrigt", 
+        tid, 
+        datum: document.getElementById("datum").value, 
+        desc: document.getElementById("beskrivning").value || "-",
+        start: document.getElementById("start").value,
+        slut: document.getElementById("slut").value
     };
-    localStorage.setItem("utforare", rad.namn);
+    
     let rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
-    rader.push(rad);
+    rader.unshift(rad);
     localStorage.setItem("tidrader", JSON.stringify(rader));
-    ["ao", "beskrivning", "material"].forEach(id => document.getElementById(id).value = "");
-    renderList(); validate();
+    
+    document.getElementById("ao").value = "";
+    document.getElementById("beskrivning").value = "";
+    renderList();
+}
+
+function editRad(index) {
+    let rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
+    const r = rader[index];
+    document.getElementById("ao").value = r.ao;
+    document.getElementById("beskrivning").value = r.desc;
+    document.getElementById("datum").value = r.datum;
+    document.getElementById("start").value = r.start;
+    document.getElementById("slut").value = r.slut;
+    
+    rader.splice(index, 1);
+    localStorage.setItem("tidrader", JSON.stringify(rader));
+    renderList();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function renderList() {
     const rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
-    let html = "";
-    rader.forEach((r, i) => {
-        const cls = r.color === 'orange' ? 'is-orange' : (r.color === 'red' ? 'is-red' : '');
-        html += `<div class="row-card ${cls}"><div class="row-top"><span>AO: ${r.ao}</span><span style="color:var(--primary)">${r.tid.toFixed(2)} h</span></div><div class="row-info"><strong>Utförare:</strong> ${r.namn}<br><strong>Datum:</strong> ${r.datum}<br><strong>Tid:</strong> ${r.start}-${r.slut}<br><strong>Jobb:</strong> ${r.beskrivning}</div><div class="action-btns"><button class="circle-btn btn-edit" onclick="editR(${i})">✎</button><button class="circle-btn btn-del" onclick="delR(${i})">✕</button></div></div>`;
-    });
-    document.getElementById("lista-container").innerHTML = html;
-    const group = rader.reduce((acc, r) => { acc[r.ao] = (acc[r.ao] || 0) + r.tid; return acc; }, {});
-    let sHtml = "";
-    if(rader.length > 0) {
-        sHtml = `<div class="summary-card"><table><thead><tr><th>AO</th><th style="text-align:right;">TIMMAR</th></tr></thead><tbody>`;
-        let tot = 0;
-        for (const [ao, t] of Object.entries(group)) { tot += t; sHtml += `<tr><td>${ao}</td><td style="text-align:right;">${t.toFixed(2)} h</td></tr>`; }
-        sHtml += `<tr class="sum-total"><td>TOTALT</td><td style="text-align:right;">${tot.toFixed(2)} h</td></tr></tbody></table></div>`;
-    }
-    document.getElementById("summary-container").innerHTML = sHtml;
+    const container = document.getElementById("lista-container");
+    let total = 0;
+    
+    container.innerHTML = rader.map((r, i) => {
+        total += r.tid;
+        return `
+            <div class="row-card">
+                <div class="row-header">
+                    <span>${r.datum} <small style="margin-left:10px; opacity:0.6;">${r.ao}</small></span>
+                    <span style="color:var(--primary)">${r.tid.toFixed(2)} h</span>
+                </div>
+                <div class="row-desc">${r.desc}</div>
+                <div class="actions">
+                    <span class="edit-btn" onclick="editRad(${i})">✎ ÄNDRA</span>
+                    <span class="delete-btn" onclick="if(confirm('Radera?')) { let rd=JSON.parse(localStorage.getItem('tidrader')); rd.splice(${i},1); localStorage.setItem('tidrader',JSON.stringify(rd)); renderList(); }">🗑 RADERA</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+    document.getElementById("summary-box").innerText = `Total tid: ${total.toFixed(2)} h`;
 }
 
 function handleCSVExport() {
-    const p = prompt("Ange PIN för CSV-export:");
-    if(p !== CODES.export) return alert("Fel kod!");
-    
     const rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
-    const namn = document.getElementById("namn").value;
-
-    let csvContent = "\ufeff"; 
-    csvContent += "AO;Utförare;Datum;Arbetsbeskrivning;Material;Start;Slut;Lunch;Timmar\n";
-
-    rader.forEach(r => {
-        const row = [
-            r.ao,
-            r.namn,
-            r.datum,
-            r.beskrivning.replace(/;/g, ","), 
-            r.material.replace(/\n/g, " ").replace(/;/g, ","),
-            r.start,
-            r.slut,
-            r.lunch,
-            r.tid.toFixed(2).replace(".", ",") 
-        ];
-        csvContent += row.join(";") + "\n";
-    });
-
-    const totalt = rader.reduce((sum, r) => sum + r.tid, 0);
-    csvContent += `\n;;;;;;;TOTALT;${totalt.toFixed(2).replace(".", ",")}\n`;
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    if(rader.length === 0) return;
+    let csv = "Datum;AO;Beskrivning;Timmar\n";
+    rader.forEach(r => csv += `${r.datum};${r.ao};${r.desc};${r.tid.toFixed(2).replace('.', ',')}\n`);
+    const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-    const dateStr = new Date().toISOString().slice(0,10);
-    const fileName = `Tidrapport_${namn.replace(/\s+/g, '_')}_${dateStr}.csv`;
-    
     link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", fileName);
-    document.body.appendChild(link);
+    link.download = `Tidrapport_${localStorage.getItem("utforare_namn")}.csv`;
     link.click();
-    document.body.removeChild(link);
-
-    setTimeout(() => {
-        if(confirm("CSV-fil sparad! Vill du rensa listan nu?")) {
-            localStorage.removeItem("tidrader");
-            renderList(); validate();
-        }
-    }, 1000);
-}
-
-function authAction(t) {
-    const p = prompt(`PIN för rensning:`);
-    if(p === CODES[t]) {
-        if(confirm("Rensa allt?")) { localStorage.removeItem("tidrader"); renderList(); validate(); }
-    } else alert("Fel kod!");
-}
-
-function delR(i) {
-    if(confirm("Ta bort raden?")) {
-        let r = JSON.parse(localStorage.getItem("tidrader") || "[]");
-        r.splice(i, 1);
-        localStorage.setItem("tidrader", JSON.stringify(r));
-        renderList(); validate();
-    }
-}
-
-function editR(i) {
-    let rader = JSON.parse(localStorage.getItem("tidrader") || "[]");
-    const r = rader[i];
-    ["datum", "ao", "beskrivning", "material", "start", "slut", "lunch"].forEach(id => {
-        if(document.getElementById(id)) document.getElementById(id).value = r[id];
-    });
-    rader.splice(i, 1);
-    localStorage.setItem("tidrader", JSON.stringify(rader));
-    renderList(); validate();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 </script>
 </body>
