@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<link rel="apple-touch-icon" href="icon-192.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tidrapport Elite v11.4</title>
+    <style>
+        :root { 
+            --primary: #00d2ff; --secondary: #3a7bd5;
+            --success: #00f2fe; --danger: #ff5e62; --warning: #fb8500;
+            --bg: #0f172a; --card: rgba(30, 41, 59, 0.7); 
+            --text: #f8fafc; --input-bg: rgba(51, 65, 85, 0.5);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        input, textarea { user-select: text; }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            margin: 0; padding: 20px 15px; 
+            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+            color: var(--text); min-height: 100vh; text-align: center;
+        }
+
+        .container { max-width: 500px; margin: auto; animation: fadeIn 0.6s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header h1 { 
+            margin: 0 0 20px 0; font-size: 1.8rem; font-weight: 800; 
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        .card { 
+            background: var(--card); padding: 25px; border-radius: 28px; 
+            backdrop-filter: blur(10px); border: 1px solid var(--border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        label { font-weight: 700; display: block; margin-top: 15px; font-size: 0.7rem; text-transform: uppercase; color: #94a3b8; letter-spacing: 1px; }
+
+        input, textarea, select { 
+            display: block; margin-top: 8px; width: 100%; padding: 15px; 
+            border: 1px solid var(--border); border-radius: 16px; font-size: 16px; 
+            background: var(--input-bg); color: white; transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        input:focus { border-color: var(--primary); background: rgba(51, 65, 85, 0.8); outline: none; }
+
+        /* Statusfärger för datum */
+        .is-holiday { border-color: var(--danger) !important; color: var(--danger) !important; font-weight: bold; }
+        .is-afton { border-color: var(--warning) !important; color: var(--warning) !important; font-weight: bold; }
+        #holiday-msg { font-size: 0.65rem; color: var(--danger); font-weight: 800; display: none; margin-top: 5px; }
+        #afton-msg { font-size: 0.65rem; color: var(--warning); font-weight: 800; display: none; margin-top: 5px; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .time-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        .btn-group { margin-top: 25px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        button { 
+            padding: 18px; cursor: pointer; border: none; border-radius: 18px; 
+            font-weight: 800; font-size: 0.9rem; transition: all 0.3s ease;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+
+        .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; grid-column: span 2; }
+        .btn-main:disabled { background: #334155; color: #64748b; cursor: not-allowed; opacity: 0.6; box-shadow: none; }
+
+        .btn-secondary { background: rgba(248, 250, 252, 0.05); color: #cbd5e1; border: 1px solid var(--border); }
+        .btn-outline { background: #f8fafc; color: #0f172a; grid-column: span 2; margin-top: 15px; }
+
+        /* Sparade rader */
+        .row-card { 
+            background: var(--card); margin-top: 15px; padding: 20px; border-radius: 22px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border: 1px solid var(--border); text-align: left;
+        }
+        .row-card.holiday-card { border-left: 6px solid var(--danger); }
+        .row-card.afton-card { border-left: 6px solid var(--warning); }
+
+        .row-ao { font-weight: 900; color: var(--primary); font-size: 1rem; }
+        .holiday-badge { color: var(--danger); font-size: 0.7rem; font-weight: 800; }
+        .afton-badge { color: var(--warning); font-size: 0.7rem; font-weight: 800; }
+        
+        .badge-time { 
+            background: rgba(0, 210, 255, 0.1); color: var(--primary); 
+            padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.8rem; 
+            display: inline-block; margin-top: 8px; border: 1px solid rgba(0, 210, 255, 0.2);
+        }
+
+        .action-btns { display: flex; gap: 10px; }
+        .circle-btn { width: 42px; height: 42px; border-radius: 14px; border: none; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; }
+        .edit-bg { background: rgba(0, 210, 255, 0.1); color: var(--primary); }
+        .delete-bg { background: rgba(255, 94, 98, 0.1); color: var(--danger); }
+
+        .total-box { 
+            margin-top: 25px; padding: 25px; background: linear-gradient(135deg, #1e293b, #0f172a); 
+            color: white; border-radius: 24px; display: flex; justify-content: space-between; border: 1px solid var(--primary);
+        }
+        .total-box span:last-child { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+        .copyright { margin-top: 50px; padding-bottom: 20px; text-align: center; font-size: 0.75rem; color: #475569; letter-spacing: 0.5px; }
+    </style>
+</head>
+<body onload="init()" oncontextmenu="return false" onkeydown="return disableCopy(event)">
+
+<div class="container">
+    <div class="header"><h1>TIDRAPPORT <span>v11.4</span></h1></div>
+    <div class="card">
+        <form id="form">
+            <label>Utförare *</label>
+            <input type="text" id="namn" placeholder="Ditt namn" required oninput="validate()">
+            
+            <div class="grid-2">
+                <div>
+                    <label>Datum *</label>
+                    <input type="date" id="datum" oninput="validate()">
+                    <div id="holiday-msg">⚠️ SVENSK HELGDAG</div>
+                    <div id="afton-msg">⚠️ AFTON (ORANGE)</div>
+                </div>
+                <div><label>AO / Projekt *</label><input type="text" id="ao" placeholder="AO-nummer" required oninput="validate()"></div>
+            </div>
+
+            <label>Arbetsbeskrivning *</label>
+            <textarea id="beskrivning" rows="2" placeholder="Vad har utförts?" oninput="validate(); capitalizeFirst(this)"></textarea>
+            
+            <label>Material (Valfritt)</label>
+            <input type="text" id="forbrukning" placeholder="Använt material?">
+
+            <div class="time-row">
+                <div><label>Start *</label><input type="time" id="start" value="07:00" oninput="validate()"></div>
+                <div>
+                    <label>Lunch</label>
+                    <select id="lunch" oninput="validate()">
+                        <option value="0">0 min</option>
+                        <option value="0.25">15 min</option>
+                        <option value="0.5">30 min</option>
+                        <option value="0.75">45 min</option>
+                        <option value="1" selected>1 tim</option>
+                    </select>
+                </div>
+                <div><label>Slut *</label><input type="time" id="slut" value="16:00" oninput="validate()"></div>
+            </div>
+
+            <label>Total tid</label>
+            <input type="text" id="tid" readonly style="border:none; font-size: 1.6rem; background: transparent; font-weight: 900; color: var(--primary);">
+
+            <div class="btn-group">
+                <button type="button" class="btn-main" id="saveBtn" onclick="sparaRad()" disabled>🔒 FYLL I FÄLT</button>
+                <button type="button" class="btn-secondary" onclick="clearAll()">🗑️ RENSA</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="summary-list" style="margin-top: 10px;"></div>
+    <div id="grand-total-container"></div>
+
+    <div class="btn-group" style="margin-top: 40px;">
+        <button class="btn-outline" onclick="exportExcel()">📤 EXPORTERA CSV</button>
+        <button class="btn-secondary" onclick="exportMaterialList()" style="grid-column: span 2;">📦 MATERIAL & ARBETE (.TXT)</button>
+    </div>
+
+    <div class="copyright">© 2026 JÖRGEN NYSTRÖM. ALL RIGHTS RESERVED.</div>
+</div>
+
+<script>
+// SÄKERHETSINSTÄLLNINGAR
+const PIN = "1234"; // Ändra din kod här
+let savedData = JSON.parse(localStorage.getItem('tidrapportData')) || [];
+let editIndex = null;
+
+// Kalenderdata 2024-2030
+const helgdagar = ["2024-01-01","2024-01-06","2024-03-29","2024-03-31","2024-04-01","2024-05-01","2024-05-09","2024-05-19","2024-06-06","2024-06-22","2024-11-02","2024-12-25","2024-12-26","2025-01-01","2025-01-06","2025-04-18","2025-04-20","2025-04-21","2025-05-01","2025-05-29","2025-06-06","2025-06-08","2025-06-21","2025-11-01","2025-12-25","2025-12-26","2026-01-01","2026-01-06","2026-04-03","2026-04-05","2026-04-06","2026-05-01","2026-05-14","2026-05-24","2026-06-06","2026-06-20","2026-10-31","2026-12-25","2026-12-26","2027-01-01","2027-01-06","2027-03-26","2027-03-28","2027-03-29","2027-05-01","2027-05-06","2027-05-16","2027-06-06","2027-06-25","2027-06-26","2027-11-06","2027-12-24","2027-12-25","2027-12-26","2027-12-31","2028-01-01","2028-01-06","2028-04-14","2028-04-16","2028-04-17","2028-05-01","2028-05-25","2028-06-04","2028-06-06","2028-06-24","2028-11-04","2028-12-25","2028-12-26","2029-01-01","2029-01-06","2029-03-30","2029-04-01","2029-04-02","2029-05-01","2029-05-10","2029-05-20","2029-06-06","2029-06-23","2029-11-03","2029-12-25","2029-12-26","2030-01-01","2030-01-06","2030-04-19","2030-04-21","2030-04-22","2030-05-01","2030-05-30","2030-06-06","2030-06-09","2030-06-22","2030-11-02","2030-12-25","2030-12-26"];
+const aftnar = ["2024-06-21","2024-12-24","2024-12-31","2025-06-20","2025-12-24","2025-12-31","2026-06-19","2026-12-24","2026-12-31","2027-06-25","2027-12-24","2027-12-31","2028-06-23","2028-12-24","2028-12-31","2029-06-22","2029-12-24","2029-12-31","2030-06-21","2030-12-24","2030-12-31"];
+
+function disableCopy(e) { if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 85 || e.keyCode === 88)) return false; }
+
+function init() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('datum').value = today;
+    const lastUser = localStorage.getItem('lastUser');
+    if(lastUser) document.getElementById('namn').value = lastUser;
+    validate(); uppdateraSammanfattning();
+}
+
+function validate() {
+    const n = document.getElementById("namn").value.trim();
+    const d = document.getElementById("datum").value;
+    const ao = document.getElementById("ao").value.trim();
+    const b = document.getElementById("beskrivning").value.trim();
+    const s = document.getElementById("start").value;
+    const e = document.getElementById("slut").value;
+    const btn = document.getElementById("saveBtn");
+
+    const isRed = new Date(d).getDay() === 0 || helgdagar.includes(d);
+    const isOra = aftnar.includes(d);
+    const dInput = document.getElementById("datum");
+    dInput.classList.remove("is-holiday", "is-afton");
+    document.getElementById("holiday-msg").style.display = isRed ? "block" : "none";
+    document.getElementById("afton-msg").style.display = isOra ? "block" : "none";
+    if(isRed) dInput.classList.add("is-holiday");
+    else if(isOra) dInput.classList.add("is-afton");
+
+    autoBerakna();
+
+    if(n && d && ao && b && s && e) {
+        btn.disabled = false;
+        btn.innerHTML = editIndex !== null ? "💾 UPPDATERA" : "✨ SPARA RAD";
+    } else {
+        btn.disabled = true;
+        btn.innerHTML = "🔒 FYLL I FÄLT";
+    }
+}
+
+function capitalizeFirst(el) { if (el.value.length > 0) el.value = el.value.charAt(0).toUpperCase() + el.value.slice(1); }
+
+function autoBerakna() {
+    const s = document.getElementById("start").value.split(':'), e = document.getElementById("slut").value.split(':'), l = parseFloat(document.getElementById("lunch").value);
+    if(s.length<2 || e.length<2) return;
+    let sM = parseInt(s[0])*60 + parseInt(s[1]), eM = parseInt(e[0])*60 + parseInt(e[1]);
+    if(eM < sM) eM += 1440;
+    document.getElementById("tid").value = (Math.max(0, (eM - sM) / 60 - l)).toFixed(2) + " h";
+}
+
+function sparaRad() {
+    const dVal = document.getElementById("datum").value;
+    const rad = { 
+        AO: document.getElementById("ao").value.trim(), Datum: dVal, 
+        Utförare: document.getElementById("namn").value, Beskrivning: document.getElementById("beskrivning").value, 
+        Material: document.getElementById("forbrukning").value || '-', Start: document.getElementById("start").value, 
+        Slut: document.getElementById("slut").value, Totalt: parseFloat(document.getElementById("tid").value),
+        Helg: (new Date(dVal).getDay() === 0 || helgdagar.includes(dVal)),
+        Afton: aftnar.includes(dVal)
+    };
+    if(editIndex !== null) { savedData[editIndex] = rad; editIndex = null; }
+    else savedData.push(rad);
+    localStorage.setItem('tidrapportData', JSON.stringify(savedData));
+    localStorage.setItem('lastUser', rad.Utförare);
+    uppdateraSammanfattning();
+    document.getElementById("beskrivning").value = ""; document.getElementById("forbrukning").value = ""; document.getElementById("ao").value = "";
+    validate();
+}
+
+function uppdateraSammanfattning() {
+    const l = document.getElementById("summary-list"); l.innerHTML = ""; let t = 0;
+    savedData.forEach((r, i) => {
+        t += r.Totalt;
+        let typeClass = r.Helg ? 'holiday-card' : (r.Afton ? 'afton-card' : '');
+        let badge = r.Helg ? '<span class="holiday-badge">⚠️ HELGDAG</span>' : (r.Afton ? '<span class="afton-badge">⚠️ AFTON</span>' : '');
+        const d = document.createElement("div"); d.className = `row-card ${typeClass}`;
+        d.innerHTML = `<div class="row-content"><div class="row-ao"># ${r.AO} ${badge}</div><div style="font-weight:600;">${r.Beskrivning}</div><div class="row-meta">${r.Datum} • ${r.Utförare}</div><span class="badge-time">⏱️ ${r.Start}-${r.Slut} (${r.Totalt} h)</span></div><div class="action-btns"><button class="circle-btn edit-bg" onclick="editRow(${i})">✎</button><button class="circle-btn delete-bg" onclick="deleteRow(${i})">✕</button></div>`;
+        l.appendChild(d);
+    });
+    document.getElementById("grand-total-container").innerHTML = savedData.length ? `<div class="total-box"><span>SUMMA TID</span><span>${t.toFixed(2)} h</span></div>` : "";
+}
+
+function editRow(i) {
+    const r = savedData[i]; 
+    document.getElementById("ao").value = r.AO; document.getElementById("datum").value = r.Datum; 
+    document.getElementById("namn").value = r.Utförare; document.getElementById("beskrivning").value = r.Beskrivning; 
+    document.getElementById("forbrukning").value = r.Material; document.getElementById("start").value = r.Start; 
+    document.getElementById("slut").value = r.Slut;
+    editIndex = i; window.scrollTo({ top: 0, behavior: 'smooth' }); validate();
+}
+
+function deleteRow(i) { if(confirm("Ta bort raden?")) { savedData.splice(i, 1); localStorage.setItem('tidrapportData', JSON.stringify(savedData)); uppdateraSammanfattning(); } }
+
+function clearAll() {
+    const p = prompt("BEHÖRIGHETSKONTROLL\nAnge PIN:");
+    if(p === PIN) {
+        if(confirm("Radera hela månaden? Går inte att ångra!!")) {
+            localStorage.setItem('tid_backup', JSON.stringify(savedData));
+            savedData = []; localStorage.removeItem('tidrapportData');
+            uppdateraSammanfattning(); showUndoButton();
+        }
+    } else if(p !== null) alert("FEL KOD!");
+}
+
+function showUndoButton() {
+    const b = document.createElement("div"); b.innerHTML = `<div style="background:#334155;padding:15px;border-radius:14px;border:1px dashed var(--primary);margin-bottom:20px;"><p style="font-size:0.7rem;margin-bottom:10px;">Raderat! Backup sparad.</p><button onclick="restoreBackup()" style="background:var(--primary);color:#000;padding:8px 15px;font-size:0.7rem;">ÅNGRA</button></div>`;
+    document.getElementById("summary-list").prepend(b); setTimeout(() => b.remove(), 20000);
+}
+
+function restoreBackup() {
+    const b = localStorage.getItem('tid_backup');
+    if(b) { savedData = JSON.parse(b); localStorage.setItem('tidrapportData', b); uppdateraSammanfattning(); }
+}
+
+function exportExcel() {
+    if(!savedData.length) return alert("Ingen data!");
+    let c = "\uFEFF AO;Datum;Utförare;Beskrivning;Material;Start;Slut;Totalt;Status\n";
+    savedData.forEach(r => {
+        let status = r.Helg ? 'Helg' : (r.Afton ? 'Afton' : 'Vardag');
+        c += `${r.AO};${r.Datum};${r.Utförare};${r.Beskrivning.replace(/;/g,",")};${r.Material.replace(/;/g,",")};${r.Start};${r.Slut};${r.Totalt};${status}\n`;
+    });
+    const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([c], {type:'text/csv'})); link.download=`Tidrapport_${new Date().toLocaleDateString()}.csv`; link.click();
+}
+
+function exportMaterialList() {
+    if(!savedData.length) return alert("Ingen data!");
+    let c = "MATERIAL & ARBETSRAPPORT\n--------------------------\n";
+    savedData.forEach(r => c += `\nAO: ${r.AO}\nDatum: ${r.Datum}\nArbete: ${r.Beskrivning}\nMaterial: ${r.Material}\n--------------------------\n`);
+    const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([c], {type:'text/plain'})); link.download="Materiallogg.txt"; link.click();
+}
+/ Spara namnet automatiskt
+document.getElementById('namn').addEventListener('input', (e) => {
+    localStorage.setItem('anvandare', e.target.value);
+});
+
+// Ladda namnet när appen startar
+window.addEventListener('load', () => {
+    const sparatNamn = localStorage.getItem('anvandare');
+    if (sparatNamn) document.getElementById('namn').value = sparatNamn;
+});
+</script>
+</body>
+</html>
