@@ -29,16 +29,8 @@
         .footer-copyright { text-align: center; font-size: 0.7rem; color: #64748b; margin-top: 20px; letter-spacing: 0.5px; }
 
         .required::after { content: " *"; color: var(--danger); font-size: 1.1rem; }
-        .error-field { border: 2px solid var(--danger) !important; animation: shake 0.3s; }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-
         label { font-weight: 700; display: block; margin-top: 12px; font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
-        input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: var(--input-bg); color: white; margin-top: 5px; font-size: 15px; outline: none; transition: border 0.3s; }
+        input, textarea, select { width: 100%; padding: 12px; border-radius: 12px; border: 2px solid var(--border); background: var(--input-bg); color: white; margin-top: 5px; font-size: 15px; outline: none; transition: all 0.3s; }
         input:focus { border-color: var(--primary); }
         
         .btn-main { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; padding: 16px; width: 100%; border-radius: 14px; font-weight: 800; cursor: pointer; margin-top: 15px; }
@@ -47,12 +39,12 @@
         .row-card { background: var(--card); margin-top: 12px; padding: 16px; border-radius: 18px; border: 1px solid var(--border); position: relative; }
         .row-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .row-utforare { font-size: 0.75rem; color: var(--primary); font-weight: 800; }
-        .del-icon { color: var(--danger); cursor: pointer; font-size: 1.1rem; }
+        .del-icon { color: var(--danger); cursor: pointer; font-size: 1.1rem; margin-left: 10px; }
 
         .row-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 8px; }
         .row-desc { font-size: 0.85rem; color: #94a3b8; margin-top: 8px; font-style: italic; border-top: 1px solid var(--border); padding-top: 8px; }
         
-        #summary-box { background: linear-gradient(135deg, #10b981, #059669); padding: 15px; border-radius: 18px; text-align: center; font-weight: 800; margin: 20px 0; }
+        #summary-box { background: linear-gradient(135deg, #10b981, #059669); padding: 15px; border-radius: 18px; text-align: center; font-weight: 800; margin: 20px 0 5px 0; }
     </style>
 </head>
 <body onload="init()">
@@ -62,7 +54,14 @@
     <h3 style="margin-top:0; text-align:center; color:var(--primary);">INSTÄLLNINGAR</h3>
     <button class="btn-opt" onclick="changePin()">Byt PIN-kod</button>
     <button class="btn-opt" onclick="secureExport()" style="border-color: var(--success); color: var(--success);">📥 Exportera CSV</button>
-    <button class="btn-opt" onclick="location.reload()" style="border-color: var(--danger); color: var(--danger);">Logga ut</button>
+    
+    <input type="file" id="csv-import" accept=".csv" style="display:none" onchange="importCSV(this)">
+    <button class="btn-opt" onclick="document.getElementById('csv-import').click()" style="border-color: var(--primary); color: var(--primary);">📤 Importera CSV</button>
+
+    <button class="btn-opt" onclick="rensaAllaRader()" style="border-color: var(--danger); color: var(--danger); font-weight: 800; margin-top: 20px;">🔒 BACKUP & RENSA ALLA</button>
+    
+    <hr style="border: 0; border-top: 1px solid var(--border); margin: 15px 0;">
+    <button class="btn-opt" onclick="location.reload()" style="color: #94a3b8;">Logga ut</button>
     <button class="btn-main" onclick="toggleSettings()">STÄNG</button>
 </div>
 
@@ -84,51 +83,77 @@
         <h1 style="text-align:center; font-size: 1.4rem; margin:0 0 10px 0;">TIDRAPPORT ELITE</h1>
         
         <label class="required">Utförare</label>
-        <input type="text" id="utforare" readonly>
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+            <input type="text" id="utforare" readonly style="flex-grow: 1; margin-top: 0; background: rgba(255,255,255,0.05); color: #94a3b8;">
+            <button onclick="raderaUtforare()" style="background: var(--danger); border: none; border-radius: 12px; padding: 0 15px; cursor: pointer; color: white; font-weight: bold; font-size: 0.7rem;">RADERA</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <button type="button" class="btn-opt" onclick="kopieraSenasteRaden()" style="background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: var(--success); font-size: 0.7rem; margin-top: 0;">📅 HÄMTA IGÅR</button>
+            <button type="button" class="btn-opt" onclick="rensaFormular()" style="background: rgba(255, 94, 98, 0.1); border-color: var(--danger); color: var(--danger); font-size: 0.7rem; margin-top: 0;">🧹 TÖM FORMULÄR</button>
+        </div>
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div><label>Datum</label><input type="date" id="datum"></div>
-            <div><label class="required">AO-Nummer</label><input type="text" id="ao" placeholder="AO"></div>
+            <div>
+                <label class="required">AO-Nummer</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="text" id="ao" placeholder="AO" style="flex-grow: 1;">
+                    <button onclick="document.getElementById('ao').value=''; localStorage.removeItem('senaste_ao');" style="margin-top: 5px; background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; color: white; padding: 0 10px;">✕</button>
+                </div>
+            </div>
         </div>
         
         <label class="required">Arbetsbeskrivning</label>
-        <textarea id="beskrivning" rows="2" placeholder="Vad har utförts?"></textarea>
+        <div style="position: relative;">
+            <textarea id="beskrivning" rows="2" placeholder="Vad har utförts?"></textarea>
+            <button onclick="document.getElementById('beskrivning').value=''; localStorage.removeItem('senaste_beskrivning');" style="position: absolute; top: 12px; right: 10px; background: rgba(0,0,0,0.3); border: none; border-radius: 50%; color: white; width: 25px; height: 25px; cursor: pointer;">✕</button>
+        </div>
         
         <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:10px;">
-            <div><label>Start</label><input type="time" id="start" value="07:00"></div>
-            <div><label>Slut</label><input type="time" id="slut" value="16:00"></div>
-            <div><label>Lunch</label>
+            <div><label>Start</label><input type="time" id="start" value="07:00" onchange="kollaAutomatiskRast()"></div>
+            <div><label>Slut</label><input type="time" id="slut" value="16:00" onchange="kollaAutomatiskRast()"></div>
+            <div>
+                <label>Lunch</label>
                 <select id="lunch">
                     <option value="1">1.0 h</option>
                     <option value="0.5">0.5 h</option>
                     <option value="0">0 h</option>
                 </select>
+                <div id="lunch-warning" style="display:none; color: var(--danger); font-size: 0.5rem; font-weight: bold; margin-top: 4px;">⚠️ RAST KRÄVS >5H</div>
             </div>
         </div>
         <button class="btn-main" onclick="sparaRad()">SPARA RAD</button>
+        <button id="btn-avbryt" class="btn-opt" onclick="avbrytRedigering()" style="display: none; background: rgba(255,255,255,0.1); border-color: #64748b; margin-top: 8px;">✖ AVBRYT REDIGERING</button>
     </div>
 
     <div id="lista-container"></div>
     <div id="summary-box">Total tid: 0.00 h</div>
+    <div id="week-summary" style="text-align: center; font-size: 0.85rem; color: var(--primary); font-weight: 700; margin-bottom: 20px;">Veckototal: 0.00 h</div>
     <div class="footer-copyright">Copyright 2026 Jörgen Nyström</div>
 </div>
 
 <script>
 let rader = JSON.parse(localStorage.getItem("tider_v15_5")) || [];
+let redigeraIndex = -1;
 
 function capitalizeName(str) {
     if(!str) return "";
-    return str.toLowerCase().split(' ').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 }
 
 function init() {
     if(!localStorage.getItem("app_pin")) localStorage.setItem("app_pin", "1234");
     const user = localStorage.getItem("utforare_namn");
     if(user) {
-        document.getElementById("login-user").value = user;
+        document.getElementById("utforare").value = capitalizeName(user);
+        document.getElementById("login-screen").style.display = "none";
+        document.getElementById("app-content").style.display = "block";
     }
+    const sparatAo = localStorage.getItem("senaste_ao");
+    if(sparatAo) document.getElementById("ao").value = sparatAo;
+    const sparadBesk = localStorage.getItem("senaste_beskrivning");
+    if(sparadBesk) document.getElementById("beskrivning").value = sparadBesk;
     document.getElementById("datum").valueAsDate = new Date();
     renderaLista();
 }
@@ -137,79 +162,105 @@ function attemptLogin() {
     let userField = document.getElementById("login-user");
     let user = userField.value.trim();
     const pin = document.getElementById("login-pin").value;
-    
-    userField.classList.remove("error-field");
-
-    if(user.split(' ').filter(n => n).length < 2) {
-        userField.classList.add("error-field");
-        alert("Vänligen ange både för- och efternamn.");
-        return;
-    }
-
-    if(pin === localStorage.getItem("app_pin")) {
-        user = capitalizeName(user);
+    if(user.split(' ').filter(n => n).length < 2) return alert("Ange för- och efternamn.");
+    if(pin === (localStorage.getItem("app_pin") || "1234")) {
         localStorage.setItem("utforare_namn", user);
-        document.getElementById("utforare").value = user;
-        document.getElementById("login-screen").style.display = "none";
-        document.getElementById("app-content").style.display = "block";
-    } else {
-        alert("Fel PIN-kod!");
+        init();
+    } else alert("Fel PIN!");
+}
+
+function raderaUtforare() {
+    if(confirm("Radera sparad utförare?")) {
+        localStorage.removeItem("utforare_namn");
+        location.reload();
     }
 }
 
-function toggleSettings() {
-    const modal = document.getElementById("settings-modal");
-    const overlay = document.getElementById("overlay");
-    const isVisible = modal.style.display === "block";
-    modal.style.display = isVisible ? "none" : "block";
-    overlay.style.display = isVisible ? "none" : "block";
+function raknaUtTimmar() {
+    const s = document.getElementById("start").value, e = document.getElementById("slut").value, l = parseFloat(document.getElementById("lunch").value);
+    const start = new Date(`2026-01-01T${s}`);
+    let slut = new Date(`2026-01-01T${e}`);
+    if (slut < start) slut.setDate(slut.getDate() + 1);
+    return ((slut - start) / (3600000) - l).toFixed(2);
 }
 
-function changePin() {
-    const nyPin = prompt("Ange ny 4-siffrig PIN-kod:");
-    if(nyPin && nyPin.length >= 4) {
-        localStorage.setItem("app_pin", nyPin);
-        alert("PIN-kod ändrad!");
-    }
+function kollaAutomatiskRast() {
+    const s = document.getElementById("start").value, e = document.getElementById("slut").value;
+    const lVal = document.getElementById("lunch"), warn = document.getElementById("lunch-warning");
+    const start = new Date(`2026-01-01T${s}`);
+    let slut = new Date(`2026-01-01T${e}`);
+    if (slut < start) slut.setDate(slut.getDate() + 1);
+    const diff = (slut - start) / 3600000;
+    if (diff >= 5) {
+        if(lVal.value === "0") lVal.value = "1";
+        warn.style.display = (lVal.value === "0") ? "block" : "none";
+    } else { warn.style.display = "none"; }
 }
 
 function sparaRad() {
-    const ao = document.getElementById("ao").value.trim();
-    const besk = document.getElementById("beskrivning").value.trim();
-    
-    if(!ao || !besk) {
-        alert("Fyll i AO-nummer och beskrivning!");
-        return;
-    }
-
-    const start = document.getElementById("start").value;
-    const slut = document.getElementById("slut").value;
-    const lunch = parseFloat(document.getElementById("lunch").value);
-    
-    const [h1, m1] = start.split(':').map(Number);
-    const [h2, m2] = slut.split(':').map(Number);
-    const diffMinuter = (h2 * 60 + m2) - (h1 * 60 + m1);
-    const timmar = (diffMinuter / 60) - lunch;
-
     const nyRad = {
-        id: Date.now(),
         utforare: document.getElementById("utforare").value,
         datum: document.getElementById("datum").value,
-        ao: ao,
-        beskrivning: besk,
-        tid: timmar.toFixed(2)
+        ao: document.getElementById("ao").value,
+        beskrivning: document.getElementById("beskrivning").value,
+        start: document.getElementById("start").value,
+        slut: document.getElementById("slut").value,
+        lunch: document.getElementById("lunch").value,
+        timmar: raknaUtTimmar()
     };
-
-    rader.unshift(nyRad);
+    if (redigeraIndex > -1) { rader[redigeraIndex] = nyRad; avbrytRedigering(); }
+    else { rader.push(nyRad); }
     localStorage.setItem("tider_v15_5", JSON.stringify(rader));
-    document.getElementById("ao").value = "";
-    document.getElementById("beskrivning").value = "";
+    localStorage.setItem("senaste_ao", nyRad.ao);
+    localStorage.setItem("senaste_beskrivning", nyRad.beskrivning);
     renderaLista();
 }
 
-function raderaRad(id) {
-    if(confirm("Vill du radera denna rad?")) {
-        rader = rader.filter(r => r.id !== id);
+function redigeraRad(index) {
+    const r = rader[index]; redigeraIndex = index;
+    document.getElementById("datum").value = r.datum;
+    document.getElementById("ao").value = r.ao;
+    document.getElementById("beskrivning").value = r.beskrivning;
+    document.getElementById("start").value = r.start;
+    document.getElementById("slut").value = r.slut;
+    document.getElementById("lunch").value = r.lunch;
+    const btn = document.querySelector(".btn-main");
+    btn.innerText = "UPPDATERA RAD " + (index + 1);
+    btn.style.background = "linear-gradient(135deg, var(--warning), var(--danger))";
+    document.getElementById("btn-avbryt").style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function avbrytRedigering() {
+    redigeraIndex = -1;
+    const btn = document.querySelector(".btn-main");
+    btn.innerText = "SPARA RAD";
+    btn.style.background = "linear-gradient(135deg, var(--primary), var(--secondary))";
+    document.getElementById("btn-avbryt").style.display = "none";
+}
+
+function kopieraRad(index) {
+    const r = rader[index];
+    document.getElementById("ao").value = r.ao;
+    document.getElementById("beskrivning").value = r.beskrivning;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function kopieraSenasteRaden() { if(rader.length > 0) kopieraRad(rader.length - 1); }
+
+function rensaFormular() {
+    if(confirm("Töm formuläret?")) {
+        document.getElementById("ao").value = "";
+        document.getElementById("beskrivning").value = "";
+        localStorage.removeItem("senaste_ao");
+        localStorage.removeItem("senaste_beskrivning");
+        avbrytRedigering();
+    }
+}
+
+function raderaRad(index) {
+    if(confirm("Radera denna rad?")) {
+        rader.splice(index, 1);
         localStorage.setItem("tider_v15_5", JSON.stringify(rader));
         renderaLista();
     }
@@ -218,38 +269,92 @@ function raderaRad(id) {
 function renderaLista() {
     const container = document.getElementById("lista-container");
     container.innerHTML = "";
-    let total = 0;
-
-    rader.forEach(rad => {
-        total += parseFloat(rad.tid);
+    let totalt = 0, veckaTotalt = 0;
+    const nuVecka = getWeekNumber(new Date());
+    rader.forEach((rad, i) => {
+        totalt += parseFloat(rad.timmar);
+        if(getWeekNumber(new Date(rad.datum)) === nuVecka) veckaTotalt += parseFloat(rad.timmar);
         container.innerHTML += `
             <div class="row-card">
                 <div class="row-top-bar">
                     <span class="row-utforare">${rad.utforare}</span>
-                    <span class="del-icon" onclick="raderaRad(${rad.id})">🗑️</span>
+                    <div>
+                        <span onclick="redigeraRad(${i})">✏️</span>
+                        <span onclick="kopieraRad(${i})" style="margin: 0 15px; opacity:0.6;">📋</span>
+                        <span class="del-icon" onclick="raderaRad(${i})">🗑️</span>
+                    </div>
                 </div>
                 <div class="row-header">
                     <span>${rad.datum} | AO: ${rad.ao}</span>
-                    <span style="color:var(--primary)">${rad.tid} h</span>
+                    <span style="color:var(--success)">${rad.timmar} h</span>
                 </div>
-                <div class="row-desc">${rad.beskrivning}</div>
-            </div>
-        `;
+                <div class="row-desc">${rad.beskrivning} (${rad.start}-${rad.slut}, lunch ${rad.lunch}h)</div>
+            </div>`;
     });
-    document.getElementById("summary-box").innerText = `Total tid: ${total.toFixed(2)} h`;
+    document.getElementById("summary-box").innerText = `Total tid: ${totalt.toFixed(2)} h`;
+    document.getElementById("week-summary").innerText = `Veckototal (v.${nuVecka}): ${veckaTotalt.toFixed(2)} h`;
+}
+
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
 }
 
 function secureExport() {
-    if(rader.length === 0) return alert("Ingen data att exportera.");
-    let csv = "Datum,Utförare,AO,Beskrivning,Timmar\n";
-    rader.forEach(r => {
-        csv += `${r.datum},${r.utforare},${r.ao},"${r.beskrivning}",${r.tid}\n`;
-    });
+    if(rader.length === 0) return alert("Tom lista!");
+    let csv = "\uFEFFUtförare;Datum;AO;Beskrivning;Start;Slut;Lunch;Timmar\n";
+    rader.forEach(r => { csv += `${r.utforare};${r.datum};${r.ao};"${r.beskrivning}";${r.start};${r.slut};${r.lunch};${r.timmar.replace('.',',')}\n`; });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = `Tidrapport_${new Date().toLocaleDateString()}.csv`;
+    link.download = `Tidrapport_${new Date().toISOString().split('T')[0]}.csv`;
     link.click();
+}
+
+function importCSV(input) {
+    const file = input.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const lines = e.target.result.split('\n');
+        for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim() === "") continue;
+            const cols = lines[i].split(';');
+            if (cols.length >= 8) {
+                rader.push({ utforare: cols[0].replace(/"/g, ''), datum: cols[1], ao: cols[2], beskrivning: cols[3].replace(/"/g, ''), start: cols[4], slut: cols[5], lunch: cols[6], timmar: cols[7].replace(',', '.').trim() });
+            }
+        }
+        localStorage.setItem("tider_v15_5", JSON.stringify(rader));
+        renderaLista();
+        alert("Import klar!");
+        toggleSettings();
+    };
+    reader.readAsText(file, "UTF-8");
+}
+
+function rensaAllaRader() {
+    const pin = prompt("Ange PIN för att BACKUP-RENSA:");
+    if(pin === (localStorage.getItem("app_pin") || "1234")) {
+        if(confirm("Backup laddas ner och listan töms. Fortsätta?")) {
+            secureExport(); rader = [];
+            localStorage.setItem("tider_v15_5", JSON.stringify(rader));
+            renderaLista(); toggleSettings();
+        }
+    } else if(pin !== null) alert("Fel PIN!");
+}
+
+function toggleSettings() {
+    const m = document.getElementById("settings-modal"), o = document.getElementById("overlay");
+    const s = m.style.display === "block";
+    m.style.display = s ? "none" : "block"; o.style.display = s ? "none" : "block";
+}
+
+function changePin() {
+    const old = prompt("Gammal PIN:");
+    if(old === (localStorage.getItem("app_pin") || "1234")) {
+        const ny = prompt("Ny 4-siffrig PIN:");
+        if(ny && ny.length === 4) { localStorage.setItem("app_pin", ny); alert("Klart!"); }
+    }
 }
 </script>
 </body>
